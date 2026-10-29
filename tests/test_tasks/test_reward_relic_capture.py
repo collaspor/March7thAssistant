@@ -36,3 +36,23 @@ def test_recommendation_uses_captured_rgb_image():
     auto = FakeAutomation(Image.open(FIXTURES / "card_2.png").convert("RGB"))
     template = Image.open(FIXTURES / "thumb_template.png").convert("RGB")
     assert RewardRelicCapture(auto).recommendation_state((0.1, 0.1, 0.2, 0.2), template) == "present"
+
+
+def test_native_click_requires_verified_before_and_after():
+    auto = FakeAutomation(Image.open(FIXTURES / "card_2.png").convert("RGB"))
+    calls = []
+    auto.click_element = lambda crop, kind, **kwargs: calls.append((crop, kind, kwargs)) or True
+    capture = RewardRelicCapture(auto)
+    assert capture.click_verified((0.1, 0.1, 0.2, 0.2), lambda: True, lambda: True)
+    assert calls == [((0.1, 0.1, 0.2, 0.2), "crop", {"press_duration": 0.2})]
+
+
+@pytest.mark.parametrize("before, after", [(False, True), (True, False)])
+def test_native_click_aborts_on_unverified_screen(before, after):
+    auto = FakeAutomation(Image.open(FIXTURES / "card_2.png").convert("RGB"))
+    calls = []
+    auto.click_element = lambda *args, **kwargs: calls.append(args) or True
+    capture = RewardRelicCapture(auto)
+    with pytest.raises(RuntimeError):
+        capture.click_verified((0.1, 0.1, 0.2, 0.2), lambda: before, lambda: after)
+    assert len(calls) == int(before)
