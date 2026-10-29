@@ -6,7 +6,11 @@ import numpy as np
 
 def recommendation_state(card, template):
     """只确认点赞标记；未匹配或画面不完整时返回未知。"""
-    if card is None or template is None or card.ndim != 3 or template.ndim != 3:
+    if (not isinstance(card, np.ndarray) or not isinstance(template, np.ndarray)
+            or card.ndim != 3 or template.ndim != 3 or card.shape[2] != 3
+            or template.shape[2] != 3 or card.dtype != np.uint8 or template.dtype != np.uint8):
+        return "unknown"
+    if template.size == 0 or float(np.std(template)) < 1:
         return "unknown"
     height, width = card.shape[:2]
     if height < 30 or width < 45:
@@ -21,7 +25,8 @@ def recommendation_state(card, template):
 
 def discard_state(icon):
     """识别样本中红色弃置图标；其他状态保持未知。"""
-    if icon is None or icon.ndim != 3 or min(icon.shape[:2]) < 20:
+    if (not isinstance(icon, np.ndarray) or icon.ndim != 3 or icon.shape[2] != 3
+            or icon.dtype != np.uint8 or min(icon.shape[:2]) < 20):
         return "unknown"
     if np.count_nonzero(cv2.Canny(icon, 50, 100)) < 40:
         return "unknown"

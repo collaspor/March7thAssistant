@@ -30,3 +30,18 @@ def test_unrecognizable_discard_icon_is_unknown():
 
 def test_plain_gray_area_is_not_an_unmarked_icon():
     assert discard_state(np.full((28, 26, 3), 160, dtype=np.uint8)) == "unknown"
+
+
+def test_blank_template_does_not_count_as_a_recommendation():
+    assert recommendation_state(image("card_4.png"), np.zeros((24, 23, 3), dtype=np.uint8)) == "unknown"
+
+
+def test_plain_red_area_is_not_a_discard_icon():
+    image_red = np.full((28, 26, 3), (0, 0, 220), dtype=np.uint8)
+    assert discard_state(image_red) == "unknown"
+
+
+def test_malformed_images_are_unknown():
+    malformed = np.random.default_rng(1).integers(0, 256, (28, 26, 2), dtype=np.uint8)
+    assert discard_state(malformed) == "unknown"
+    assert recommendation_state(image("card_1.png"), malformed) == "unknown"
