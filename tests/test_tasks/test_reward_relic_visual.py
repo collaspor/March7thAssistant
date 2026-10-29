@@ -14,7 +14,7 @@ def image(name):
     return cv2.imdecode(np.fromfile(FIXTURES / name, dtype=np.uint8), cv2.IMREAD_COLOR)
 
 
-@pytest.mark.parametrize("index, expected", [(1, "present"), (2, "present"), (3, "present"), (4, "unknown"), (5, "unknown"), (6, "unknown"), (7, "unknown")])
+@pytest.mark.parametrize("index, expected", [(1, "present"), (2, "present"), (3, "present"), (4, "absent"), (5, "absent"), (6, "absent"), (7, "absent"), (8, "absent"), (9, "absent")])
 def test_recommendation_on_reward_cards(index, expected):
     assert recommendation_state(image(f"card_{index}.png"), image("thumb_template.png")) == expected
 
@@ -34,6 +34,10 @@ def test_plain_gray_area_is_not_an_unmarked_icon():
 
 def test_blank_template_does_not_count_as_a_recommendation():
     assert recommendation_state(image("card_4.png"), np.zeros((24, 23, 3), dtype=np.uint8)) == "unknown"
+
+
+def test_unrecognizable_card_cannot_be_classified_as_absent():
+    assert recommendation_state(np.zeros((61, 74, 3), dtype=np.uint8), image("thumb_template.png")) == "unknown"
 
 
 def test_plain_red_area_is_not_a_discard_icon():

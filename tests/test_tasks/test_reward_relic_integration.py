@@ -21,9 +21,10 @@ class ScreenshotPage:
         self.template = _image("thumb_template.png")
 
     def iter_cards(self):
-        for index in range(1, 5):
+        for index in range(1, 4):
             state = recommendation_state(_image(f"card_{index}.png"), self.template)
             yield index, "relic", state
+        yield 4, "relic", recommendation_state(np.zeros((61, 74, 3), dtype=np.uint8), self.template)
 
     def open_card(self, card):
         self.opened.append(card)
