@@ -40,6 +40,13 @@ def test_unrecognizable_card_cannot_be_classified_as_absent():
     assert recommendation_state(np.zeros((61, 74, 3), dtype=np.uint8), image("thumb_template.png")) == "unknown"
 
 
+@pytest.mark.parametrize("start_x", [54, 57])
+def test_partially_obscured_recommendation_is_not_absent(start_x):
+    card = image("card_1.png")
+    card[2:25, start_x:73] = card[30:53, start_x:73]
+    assert recommendation_state(card, image("thumb_template.png")) == "unknown"
+
+
 def test_plain_red_area_is_not_a_discard_icon():
     image_red = np.full((28, 26, 3), (0, 0, 220), dtype=np.uint8)
     assert discard_state(image_red) == "unknown"

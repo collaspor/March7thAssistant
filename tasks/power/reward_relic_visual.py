@@ -29,7 +29,9 @@ def recommendation_state(card, template):
     hsv = cv2.cvtColor(card, cv2.COLOR_BGR2HSV)
     golden = cv2.countNonZero(cv2.inRange(hsv, (0, 40, 70), (40, 255, 255)))
     edges = np.count_nonzero(cv2.Canny(card, 60, 120))
-    if score <= 0.50 and golden >= 2000 and edges >= 500:
+    badge_hsv = cv2.cvtColor(region, cv2.COLOR_BGR2HSV)
+    badge_pixels = cv2.countNonZero(cv2.inRange(badge_hsv, (10, 120, 190), (45, 255, 255)))
+    if score <= 0.50 and golden >= 2000 and edges >= 500 and badge_pixels < 20:
         return "absent"
     return "unknown"
 
